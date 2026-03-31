@@ -40,6 +40,11 @@ public class ProductController {
     return ResponseEntity.ok(service.getAll());
   }
 
+  @GetMapping
+  public ResponseEntity<List<ProductResponse>> getAllActive() {
+    return ResponseEntity.ok(service.getAllActive());
+  }
+
   @PutMapping("/{id}")
   public ResponseEntity<ProductResponse> update(@PathVariable Long id, @RequestBody UpdateProductRequest request) {
     return ResponseEntity.ok(service.update(id, request));
