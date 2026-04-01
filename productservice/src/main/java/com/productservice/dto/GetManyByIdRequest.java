@@ -1,4 +1,11 @@
 package com.productservice.dto;
 
-public record GetManyByIdRequest() {
+import jakarta.validation.constraints.NotEmpty;
+
+import java.util.List;
+
+public record GetManyByIdRequest(
+  @NotEmpty
+  List<Long> ids
+) {
 }

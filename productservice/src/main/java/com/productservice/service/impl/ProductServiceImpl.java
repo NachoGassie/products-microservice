@@ -7,6 +7,7 @@ import com.productservice.mapper.ProductMapper;
 import com.productservice.model.Product;
 import com.productservice.repository.ProductRepository;
 import com.productservice.service.ProductService;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.util.List;
@@ -39,6 +40,16 @@ public class ProductServiceImpl implements ProductService {
     Product product = repository.findById(id)
       .orElseThrow(() -> new RuntimeException("Product not found"));
     return mapper.toResponse(product);
+  }
+
+  public List<ProductResponse> getManyByIds(List<Long> ids) {
+    List<Product> products = repository.findByIdInAndActiveTrue(ids);
+
+    if (products.size() != ids.size()) {
+      throw new EntityNotFoundException("Some products not found");
+    }
+
+    return products.stream().map(mapper::toResponse).toList();
   }
 
   @Override

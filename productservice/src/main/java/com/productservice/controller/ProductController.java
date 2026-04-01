@@ -1,6 +1,7 @@
 package com.productservice.controller;
 
 import com.productservice.dto.CreateProductRequest;
+import com.productservice.dto.GetManyByIdRequest;
 import com.productservice.dto.ProductResponse;
 import com.productservice.dto.UpdateProductRequest;
 import com.productservice.service.ProductService;
@@ -30,19 +31,24 @@ public class ProductController {
     return ResponseEntity.ok(service.create(request));
   }
 
-  @GetMapping("/{id}")
-  public ResponseEntity<ProductResponse> getById(@PathVariable Long id) {
-    return ResponseEntity.ok(service.getById(id));
-  }
-
   @GetMapping
   public ResponseEntity<List<ProductResponse>> getAll() {
     return ResponseEntity.ok(service.getAll());
   }
 
-  @GetMapping
+  @GetMapping("/active")
   public ResponseEntity<List<ProductResponse>> getAllActive() {
     return ResponseEntity.ok(service.getAllActive());
+  }
+
+  @GetMapping("/{id}")
+  public ResponseEntity<ProductResponse> getById(@PathVariable Long id) {
+    return ResponseEntity.ok(service.getById(id));
+  }
+
+  @PostMapping("/search")
+  public ResponseEntity<List<ProductResponse>> getById(@RequestBody GetManyByIdRequest getManyByIdRequest) {
+    return ResponseEntity.ok(service.getManyByIds(getManyByIdRequest.ids()));
   }
 
   @PutMapping("/{id}")

@@ -2,22 +2,21 @@ version: '3.8'
 
 services:
 
-  spring-api-image:
-    image: spring-api-image
-    container_name: spring-api-container
+  products-service:
+    build: ./productsservice
+    image: products-service
     env_file:
-      - .env
+      - ./productsservice/.env
     ports:
       - "8080:8080"
     networks:
-      spring-network:
+      - app-network
     depends_on:
-      postgres-dev:
+      products-db:
         condition: service_healthy
 
-  postgres-dev:
+  products-db:
     image: postgres:18-alpine
-    container_name: product-db
     environment:
       POSTGRES_DB: productdb
       POSTGRES_USER: postgres
@@ -25,11 +24,9 @@ services:
     ports:
       - "5435:5432"
     networks:
-      spring-network:
-        aliases:
-          - postgres-dev
+      - app-network
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - products-pgdata:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d productdb"]
       interval: 5s
@@ -37,6 +34,8 @@ services:
       retries: 20
 
 networks:
-  spring-network:
+  app-network:
+
 volumes:
-  pgdata:
+  products-pgdata:
+  orders-pgdata:
