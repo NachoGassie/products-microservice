@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: ordersservice
+
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+
+services:
+  products:
+    base-url: ${PRODUCTS_SERVICE_URL}

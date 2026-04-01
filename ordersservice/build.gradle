@@ -1,0 +1,62 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '4.0.5'
+	id 'io.spring.dependency-management' version '1.1.7'
+}
+
+group = 'com'
+version = '0.0.1-SNAPSHOT'
+
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(21)
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	// WEB (REST API)
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+
+	// DATA (JPA / Hibernate)
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+
+	// VALIDATION (jakarta.validation)
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+	// MAPSTRUCT (DTO <-> ENTITY)
+	implementation 'org.mapstruct:mapstruct:1.5.5.Final'
+	annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'
+
+	annotationProcessor 'org.projectlombok:lombok-mapstruct-binding:0.2.0'
+
+	// POSTGRES DRIVER
+	runtimeOnly 'org.postgresql:postgresql'
+
+	// LOMBOK
+	compileOnly 'org.projectlombok:lombok'
+	annotationProcessor 'org.projectlombok:lombok'
+
+	// DOCKER
+	developmentOnly 'org.springframework.boot:spring-boot-docker-compose'
+
+	// TESTING
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+	// MapStruct en tests (opcional pero recomendado)
+	testAnnotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'
+
+	// Lombok en tests
+	testCompileOnly 'org.projectlombok:lombok'
+	testAnnotationProcessor 'org.projectlombok:lombok'
+
+	// Launcher JUnit (opcional, pero útil en algunos entornos)
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}
