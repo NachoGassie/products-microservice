@@ -7,6 +7,8 @@ on:
     paths:
       - 'productservice/**'
       - '.github/workflows/push-product-to-ecr.yml'
+  workflow_dispatch:
+
 
 permissions:
   id-token: write
