@@ -1,4 +1,4 @@
-name: Build, Push and Deploy product-service
+name: Build and Push product-service to ECR
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
       - main
     paths:
       - 'productservice/**'
-      - '.github/workflows/product-deploy.yml'
+      - '.github/workflows/push-product-to-ecr.yml'
   workflow_dispatch:
 
 permissions:
@@ -17,10 +17,9 @@ env:
   AWS_REGION: sa-east-1
   ECR_REPOSITORY: products-service
   SERVICE_PATH: productservice
-  STACK_NAME: ProductServiceStack
 
 jobs:
-  build-push-deploy:
+  build-and-push:
     runs-on: ubuntu-latest
 
     steps:
@@ -37,41 +36,27 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
-      - name: Extract Docker metadata
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}
-          tags: |
-            type=sha,format=short,prefix=sha-
-            type=ref,event=branch
-            type=raw,value=latest,enable={{is_default_branch}}
-          labels: |
-            org.opencontainers.image.title=products-service
-            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
-            org.opencontainers.image.revision=${{ github.sha }}
+      - name: Build, tag and push Docker image
+        id: build-image # Añadimos ID para reutilizar el tag luego
+        env:
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        run: |
+          # Definimos el tag corto
+          SHA_TAG=${GITHUB_SHA::7}
+          
+          # Construimos la imagen con ambos tags
+          docker build \
+            -t $REGISTRY/$ECR_REPOSITORY:$SHA_TAG \
+            -t $REGISTRY/$ECR_REPOSITORY:latest \
+            ./$SERVICE_PATH
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+          # Subimos ambos tags
+          docker push $REGISTRY/$ECR_REPOSITORY:$SHA_TAG
+          docker push $REGISTRY/$ECR_REPOSITORY:latest
+          
+          # Guardamos el tag en un output para el siguiente paso
+          echo "image_tag=$SHA_TAG" >> $GITHUB_OUTPUT
 
-      - name: Build and push image
-        uses: docker/build-push-action@v6
-        with:
-          context: ./${{ env.SERVICE_PATH }}
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-
-      - name: Export image tag for CDK
-        run: echo "IMAGE_TAG=sha-${GITHUB_SHA::7}" >> $GITHUB_ENV
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-
-      - name: Install infra dependencies
-        run: npm ci
-
-      - name: CDK deploy
-        run: npx cdk deploy $STACK_NAME --require-approval never -c imageTag=$IMAGE_TAG
+      - name: Show pushed image
+        run: |
+          echo "Pushed to: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ steps.build-image.outputs.image_tag }}"
