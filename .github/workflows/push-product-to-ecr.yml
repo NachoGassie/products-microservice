@@ -6,12 +6,6 @@ on:
       - main
     paths:
       - 'productservice/**'
-      - 'infra/**'
-      - 'bin/**'
-      - 'lib/**'
-      - 'package.json'
-      - 'package-lock.json'
-      - 'cdk.json'
       - '.github/workflows/product-deploy.yml'
   workflow_dispatch:
 
