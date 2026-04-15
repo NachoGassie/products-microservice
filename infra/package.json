@@ -1,0 +1,42 @@
+{
+  "name": "infra",
+  "version": "0.1.0",
+  "bin": {
+    "infra": "bin/infra.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w",
+    "test": "jest",
+    "cdk": "cdk", 
+    "synth": "npx cdk synth",
+    "deploy": "npx cdk deploy --all",
+    "destroy": "npx cdk destroy --all",
+    "deploy:network": "npx cdk deploy NetworkStack",
+    "destroy:network": "npx cdk destroy NetworkStack",
+    "deploy:cluster": "npx cdk deploy ClusterStack",
+    "destroy:cluster": "npx cdk destroy ClusterStack",
+    "deploy:ecr": "npx cdk deploy ProductEcrStack OrdersEcrStack",
+    "destroy:ecr": "npx cdk destroy ProductEcrStack OrdersEcrStack",
+    "deploy:data": "npx cdk deploy ProductDataStack OrdersDataStack",
+    "destroy:data": "npx cdk destroy ProductDataStack OrdersDataStack",
+    "deploy:services": "npx cdk deploy ProductServiceStack OrdersServiceStack AlbStack",
+    "destroy:services": "npx cdk destroy ProductServiceStack OrdersServiceStack AlbStack",
+    "deploy:core": "npx cdk deploy NetworkStack ClusterStack",
+    "deploy:backend": "npx cdk deploy ProductDataStack OrdersDataStack ProductServiceStack OrdersServiceStack AlbStack",
+    "destroy:backend": "npx cdk destroy ProductDataStack OrdersDataStack ProductServiceStack OrdersServiceStack AlbStack"
+  },
+  "devDependencies": {
+    "@types/jest": "^30",
+    "@types/node": "^24.10.1",
+    "jest": "^30",
+    "ts-jest": "^29",
+    "aws-cdk": "2.1114.1",
+    "ts-node": "^10.9.2",
+    "typescript": "~5.9.3"
+  },
+  "dependencies": {
+    "aws-cdk-lib": "^2.244.0",
+    "constructs": "^10.5.0"
+  }
+}
