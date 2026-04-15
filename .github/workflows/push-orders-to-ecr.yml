@@ -7,6 +7,7 @@ on:
     paths:
       - 'ordersservice/**'
       - '.github/workflows/push-orders-to-ecr.yml'
+  workflow_dispatch: # Te añadí esto por si quieres lanzarlo manualmente
 
 permissions:
   id-token: write
@@ -36,20 +37,26 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v2
 
       - name: Build, tag and push Docker image
+        id: build-image
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          IMAGE_TAG: ${{ github.sha }}
         run: |
+          # Definimos el tag corto (7 caracteres)
+          SHA_TAG=${GITHUB_SHA::7}
+          
+          # Construimos la imagen
           docker build \
-            -t $REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
+            -t $REGISTRY/$ECR_REPOSITORY:$SHA_TAG \
             -t $REGISTRY/$ECR_REPOSITORY:latest \
-            ./${SERVICE_PATH}
+            ./$SERVICE_PATH
 
-          docker push $REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          # Subimos ambos tags
+          docker push $REGISTRY/$ECR_REPOSITORY:$SHA_TAG
           docker push $REGISTRY/$ECR_REPOSITORY:latest
+          
+          # Exportamos el tag para el siguiente paso
+          echo "image_tag=$SHA_TAG" >> $GITHUB_OUTPUT
 
       - name: Show pushed image
-        env:
-          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          IMAGE_TAG: ${{ github.sha }}
-        run: echo "Pushed $REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+        run: |
+          echo "Pushed to: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ steps.build-image.outputs.image_tag }}"
